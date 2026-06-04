@@ -93,7 +93,6 @@ def main():
     st.session_state.search_index = search_df.index 
     #Report back the dataframe
 
-    # st.write(f'Total Pokemon found: {len(search_df)}')
     # editor = st.data_editor(
     #     search_df,
     #     key = st.session_state.dek,
@@ -106,26 +105,39 @@ def main():
     #     },
     #     disabled = ('No.','Pokemon',*games_list)       
     # )
+    tab1, tab2 = st.tabs(["Full Pokedex","Planned Catches"],on_change = save_caught)
+    with tab1:
+        st.write(f'Total Pokemon found: {len(search_df)}')
+        editor = st.data_editor(
+            search_df,
+            key = st.session_state.dek,
+            column_config = {
+                    "Caught?":st.column_config.SelectboxColumn(
+                    "Planned Game",
+                    help="Select which game you plan to catch the Pokemon in",
+                    options = ["None"]+games_list,
+                    required = True
+                )
+            },
+            disabled = ('No.','Pokemon',*games_list)       
+        )
+            # clear_button = st.button('Clear \"Caught?\" Column',on_click=update_value)
+        apply_game = st.selectbox("Planned Game",["None"] + games_list,index=None,
+                                placeholder="Planned game to assign to all empty cells",
+                                accept_new_options=False)
+        assign_option = st.radio('Apply to',['Unassigned Games','All Games'],horizontal=True)
+        apply_button = st.button(
+            'Apply game to "Planned Game" Column',
+            on_click=update_value,
+            args=(str(apply_game),assign_option),
+            disabled=apply_game is None
+        )
+    
+        #Record the changes to the dataframe
+        st.session_state.caught = pd.Series(
+            [x['Caught?'] for x in list(st.session_state[st.session_state.dek]["edited_rows"].values())],
+            index=editor.index[list(st.session_state[st.session_state.dek]["edited_rows"].keys())])
 
-    editor = st.data_editor(
-        search_df,
-        key = st.session_state.dek,
-        column_config = {
-                "Caught?":st.column_config.SelectboxColumn(
-                "Planned Game",
-                help="Select which game you plan to catch the Pokemon in",
-                options = ["None"]+games_list,
-                required = True
-            )
-        },
-        disabled = ('No.','Pokemon',*games_list)       
-    )
-    
-    #Record the changes to the dataframe
-    st.session_state.caught = pd.Series(
-        [x['Caught?'] for x in list(st.session_state[st.session_state.dek]["edited_rows"].values())],
-        index=editor.index[list(st.session_state[st.session_state.dek]["edited_rows"].keys())])
-    
     with st.sidebar:
         caught_export = st.session_state.df[['Pokemon','Caught?']].copy()
         locations = [
@@ -146,18 +158,19 @@ def main():
         )
         uploaded_file = st.file_uploader("Load a Previous Tracker")
 
-    # clear_button = st.button('Clear \"Caught?\" Column',on_click=update_value)
-    apply_game = st.selectbox("Planned Game",["None"] + games_list,index=None,
-                             placeholder="Planned game to assign to all empty cells",
-                             accept_new_options=False)
-    assign_option = st.radio('Apply to',['Unassigned Games','All Games'],horizontal=True)
-    apply_button = st.button(
-        'Apply game to "Planned Game" Column',
-        on_click=update_value,
-        args=(str(apply_game),assign_option),
-        disabled=apply_game is None
-    )
-    
+    with tab2:
+        caught_export = st.session_state.df[['Pokemon','Caught?']].copy()
+        locations = [
+            st.session_state.df.iloc[i][caught_export['Caught?'].iloc[i]]
+            if caught_export['Caught?'].iloc[i] != "None"
+            else "None"
+            for i in range(len(st.session_state.df))
+        ]
+        caught_export.index.name = 'No.'
+        caught_export["Location"] = locations
+        caught_export.rename(columns = {"Caught?":"Game"},inplace=True)
+        st.dataframe(data=caught_export)
+
     #Get uploaded file, if available 
     if uploaded_file is not None and st.session_state.file:
         if Path(uploaded_file.name).suffix != '.csv':
