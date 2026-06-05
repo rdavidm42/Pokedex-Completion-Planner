@@ -107,10 +107,8 @@ def build_export_df():
     # corresponding location cell from the master DataFrame
     mask = export['Caught?'] != "None"
     locations = pd.Series("None", index=export.index)
-    locations[mask] = [
-        st.session_state.df.loc[idx, game]
-        for idx, game in export.loc[mask, 'Caught?'].items()
-    ]
+    for idx, game in export.loc[mask, 'Caught?'].items():
+        locations.loc[idx] = st.session_state.df.loc[idx, game]
 
     export["Location"] = locations
     export.rename(columns={"Caught?": "Game"}, inplace=True)
