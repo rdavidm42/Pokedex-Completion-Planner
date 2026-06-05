@@ -82,7 +82,6 @@ def query_database(generation,included_games,exclusions=[],search_term="",inclus
     return df.reset_index("Pokemon").drop_duplicates()
     
 def get_games(gen):
-    conn = get_connection()
-    sql = f""" SELECT game FROM games_gens WHERE generation = :gen_number """
-    test = conn.query(sql,params={'gen_number':gen},ttl=0)
-    return list(test['game'])
+    with open("game_order.json", "r") as jsonfile: 
+        game_order = json.load(jsonfile) 
+    return game_order[str(gen)]
