@@ -63,7 +63,7 @@ def query_database(generation,included_games,exclusions=[],search_term="",inclus
                         """
         
     sql = initial_query+secondary_query
-    test = conn.query(sql, engine,params=params,ttl=0)     
+    test = conn.query(sql,params=params,ttl=0)     
     df = test.pivot(index=['number','pokemon']
                    ,columns='game',
                    values='location').rename_axis(None, axis=1).rename_axis(index={"number":'No.',"pokemon":'Pokemon'})
@@ -84,5 +84,5 @@ def query_database(generation,included_games,exclusions=[],search_term="",inclus
 def get_games(gen):
     conn = get_connection()
     sql = f""" SELECT game FROM games_gens WHERE generation = :gen_number """
-    test = conn.query(sql, engine,params={'gen_number':gen},ttl=0)
+    test = conn.query(sql,params={'gen_number':gen},ttl=0)
     return list(test['game'])
