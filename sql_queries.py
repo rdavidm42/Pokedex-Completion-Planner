@@ -1,8 +1,11 @@
 import pandas as pd
 import re
 import json
-from sqlalchemy import text,create_engine
+import streamlit as st
+# from sqlalchemy import text,create_engine
 
+def get_connection():
+    return st.connection("pokedex",type="sql")
 
 def searching(location,search_term):
     words = search_term.lower().split()
@@ -11,7 +14,7 @@ def searching(location,search_term):
     return any([all([bool(re.search(rf"\b{re.escape(word)}s?\b",loc.lower())) for word in words]) for loc in locations])
 
 def query_database(generation,included_games,exclusions=[],search_term="",inclusive = True):
-    engine = create_engine('sqlite:///pokedex.db', echo=False)
+    conn = get_connection()
     if type(included_games) ==list:
         selected_games = included_games
     else:
@@ -59,8 +62,8 @@ def query_database(generation,included_games,exclusions=[],search_term="",inclus
                         (SELECT number FROM encounters WHERE game IN ({placeholders2}) AND method = 1)
                         """
         
-    sql = text(initial_query+secondary_query)
-    test = pd.read_sql(sql, engine,params=params)     
+    sql = initial_query+secondary_query
+    test = conn.query(sql, engine,params=params,ttl=0)     
     df = test.pivot(index=['number','pokemon']
                    ,columns='game',
                    values='location').rename_axis(None, axis=1).rename_axis(index={"number":'No.',"pokemon":'Pokemon'})
@@ -79,7 +82,7 @@ def query_database(generation,included_games,exclusions=[],search_term="",inclus
     return df.reset_index("Pokemon").drop_duplicates()
     
 def get_games(gen):
-    engine = create_engine('sqlite:///pokedex.db', echo=False)
-    sql = text(f""" SELECT game FROM games_gens WHERE generation = :gen_number """)
-    test = pd.read_sql(sql, engine,params={'gen_number':gen})
+    conn = get_connection()
+    sql = f""" SELECT game FROM games_gens WHERE generation = :gen_number """
+    test = conn.query(sql, engine,params={'gen_number':gen},ttl=0)
     return list(test['game'])
