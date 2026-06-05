@@ -1,6 +1,10 @@
 # Pokemon Catching Guide
 
-A tracker/catching guide to assist in completing the Pokedex in each generation of mainline Pokemon games. Since every generation of Pokemon games require trading between multiple games to complete the Pokedex, I created this tracker as a way to help plan and carry out the completion of the Pokedex in each generation.
+A tracker/catching guide to assist in completing the Pokedex in each generation of mainline Pokemon games written in Python as a Streamlit app. This app is hosted on the Streamlit Community Cloud, and can be found at this link:
+
+https://pokedex-completion-planner.streamlit.app/
+
+Since every generation of Pokemon games require trading between multiple games to complete the Pokedex, I created this tracker as a way to help plan and carry out the completion of the Pokedex in each generation.
 In each dataframe, the Pokemon's name, number, and the location within each game it can be caught in is included. I've also included a "Planned Game" column, where you can write down in which game you plan to catch the Pokemon.
 This column is saved, and the location of the Pokemon in the selected game is displayed in the "Planned Catches" tab. This provides a convenient place for you to see where you want to catch each Pokemon within a generation of games.
 
