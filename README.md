@@ -1,6 +1,6 @@
 # Pokemon Catching Guide
 
-A tracker/catching guide to assist in completing the Pokedex in each generation of mainline Pokemon games written in Python as a Streamlit app. This app is hosted on the Streamlit Community Cloud, and can be found at this link:
+A tracker/catching guide to assist in completing the Pokedex in each generation of mainline Pokemon games using data scraped from Bulbapedia written in Python as a Streamlit app. This app is hosted on the Streamlit Community Cloud, and can be found at this link:
 
 https://pokedex-completion-planner.streamlit.app/
 
